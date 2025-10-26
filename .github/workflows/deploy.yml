@@ -83,23 +83,10 @@ jobs:
         run: docker compose --profile prod up -d
 
       - name: Wait for services to start
-        run: |
-          echo "Waiting for services to start..."
-          sleep 20
-          echo "Services started!"
+        run: sleep 20
 
       - name: Verify deployment
-        run: |
-          echo "Checking all services..."
-          docker compose --profile prod ps
-
-          echo "Deployment complete!"
+        run: docker compose --profile prod ps
 
       - name: Cleanup old images
-        run: |
-          docker image prune -f
-
-      - name: Show service logs (last 50 lines)
-        if: always()
-        run: |
-          docker compose --profile prod logs --tail=50
+        run: docker image prune -f
