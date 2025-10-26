@@ -76,12 +76,11 @@ jobs:
           docker tag todoapi-web:${{ github.sha }} todoapi-web:latest
 
       - name: Start services
-        env:
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          DOTNET_ENVIRONMENT: Production
         run: |
-          docker compose --profile prod up -d --build
+          export POSTGRES_PASSWORD="${{ secrets.POSTGRES_PASSWORD }}"
+          export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+          export DOTNET_ENVIRONMENT="Production"
+          docker compose --profile prod up -d
 
       - name: Wait for services to start
         run: |
