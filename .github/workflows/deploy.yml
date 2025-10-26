@@ -66,6 +66,15 @@ jobs:
         run: |
           docker compose --profile prod down || true
 
+      - name: Remove old images to force recreation
+        run: |
+          docker rmi todoapi:latest todoapi-web:latest || true
+
+      - name: Re-tag images after removal
+        run: |
+          docker tag todoapi:${{ github.sha }} todoapi:latest
+          docker tag todoapi-web:${{ github.sha }} todoapi-web:latest
+
       - name: Start services
         env:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
