@@ -49,15 +49,6 @@ jobs:
     needs: [build, test]
     if: github.ref == 'refs/heads/main'
 
-    env:
-      POSTGRES_DB: todoapi
-      POSTGRES_USER: todoapi_user
-      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      JWT_ISSUER: https://nuvaro.xyz
-      JWT_AUDIENCE: https://nuvaro.xyz
-      DOTNET_ENVIRONMENT: Production
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -72,6 +63,14 @@ jobs:
           docker compose --profile prod down || true
 
       - name: Start services
+        env:
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          POSTGRES_DB: todoapi
+          POSTGRES_USER: todoapi_user
+          JWT_ISSUER: https://nuvaro.xyz
+          JWT_AUDIENCE: https://nuvaro.xyz
+          DOTNET_ENVIRONMENT: Production
         run: |
           docker compose --profile prod up -d
 
