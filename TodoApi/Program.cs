@@ -37,7 +37,7 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "Todo API",
         Version = "v2",
-        Description = "Advanced Todo API with Authentication, Categories, Tags, and Advanced Filtering"
+        Description = "Todo API with Authentication, Categories, Tags, and Filtering"
     });
 
     // Add JWT Authentication to Swagger
