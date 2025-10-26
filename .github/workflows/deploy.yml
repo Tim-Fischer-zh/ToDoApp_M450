@@ -78,13 +78,13 @@ jobs:
       - name: Wait for services to be healthy
         run: |
           echo "Waiting for services to start..."
-          sleep 10
+          sleep 15
 
-          # Check if API is healthy
+          # Check container health status using docker compose
           MAX_RETRIES=30
           RETRY_COUNT=0
 
-          until docker exec todoapi_backend wget --quiet --tries=1 --spider http://localhost:8080/api/health || [ $RETRY_COUNT -eq $MAX_RETRIES ]; do
+          until [ "$(docker inspect --format='{{.State.Health.Status}}' todoapi_backend)" == "healthy" ] || [ $RETRY_COUNT -eq $MAX_RETRIES ]; do
             echo "Waiting for API to be healthy... ($RETRY_COUNT/$MAX_RETRIES)"
             RETRY_COUNT=$((RETRY_COUNT+1))
             sleep 5
@@ -108,13 +108,21 @@ jobs:
           echo "Checking all services..."
           docker compose --profile prod ps
 
-          # Check Nginx
-          docker exec todoapi_web wget --quiet --tries=1 --spider http://localhost:80/health || {
+          # Check Nginx health status
+          if [ "$(docker inspect --format='{{.State.Health.Status}}' todoapi_web)" != "healthy" ]; then
             echo "Nginx health check failed!"
+            docker logs todoapi_web
             exit 1
-          }
+          fi
 
-          echo "All services are running!"
+          # Check Cloudflared is running
+          if [ "$(docker inspect --format='{{.State.Status}}' todoapi_cloudflared)" != "running" ]; then
+            echo "Cloudflared is not running!"
+            docker logs todoapi_cloudflared
+            exit 1
+          fi
+
+          echo "All services are running and healthy!"
 
       - name: Cleanup old images
         run: |
