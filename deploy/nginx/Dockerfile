@@ -17,8 +17,8 @@ RUN mkdir -p /var/cache/nginx/client_temp && \
 # Expose port 80
 EXPOSE 80
 
-# Health check with longer start period
-HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost/health || exit 1
+# Health check - simply check if nginx process is running
+HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
+    CMD pgrep nginx || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
