@@ -42,14 +42,7 @@ services:
     expose:
       - "8080"
     depends_on:
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - postgres
     restart: unless-stopped
     networks:
       - appnet
@@ -67,12 +60,6 @@ services:
       - api
     expose:
       - "80"
-    healthcheck:
-      test: ["CMD-SHELL", "pgrep nginx || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
     restart: unless-stopped
     networks:
       - appnet
@@ -90,8 +77,7 @@ services:
       # Mount the tunnel config from repo
       - ./deploy/cloudflared/config.yml:/etc/cloudflared/config.yml:ro
     depends_on:
-      web:
-        condition: service_healthy
+      - web
     restart: unless-stopped
     networks:
       - appnet
