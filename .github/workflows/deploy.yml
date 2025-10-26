@@ -1,0 +1,92 @@
+name: Build, Test & Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  build-test-deploy:
+    runs-on: self-hosted
+
+    env:
+      POSTGRES_DB: todoapi
+      POSTGRES_USER: todoapi_user
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_ISSUER: https://nuvaro.xyz
+      JWT_AUDIENCE: https://nuvaro.xyz
+      DOTNET_ENVIRONMENT: Production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker images
+        run: |
+          docker compose --profile prod build --no-cache
+
+      - name: Stop existing containers
+        run: |
+          docker compose --profile prod down || true
+
+      - name: Start services
+        run: |
+          docker compose --profile prod up -d
+
+      - name: Wait for services to be healthy
+        run: |
+          echo "Waiting for services to start..."
+          sleep 10
+
+          # Check if API is healthy
+          MAX_RETRIES=30
+          RETRY_COUNT=0
+
+          until docker exec todoapi_backend wget --quiet --tries=1 --spider http://localhost:8080/api/health || [ $RETRY_COUNT -eq $MAX_RETRIES ]; do
+            echo "Waiting for API to be healthy... ($RETRY_COUNT/$MAX_RETRIES)"
+            RETRY_COUNT=$((RETRY_COUNT+1))
+            sleep 5
+          done
+
+          if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+            echo "API health check failed!"
+            docker-compose -f docker-compose.prod.yml logs api
+            exit 1
+          fi
+
+          echo "API is healthy!"
+
+      - name: Run database migrations
+        run: |
+          # Migrations are automatically applied on app startup via EF Core
+          # If you need manual migration, uncomment below:
+          # docker exec todoapi_backend dotnet ef database update
+          echo "Database migrations are handled automatically on startup"
+
+      - name: Verify deployment
+        run: |
+          echo "Checking all services..."
+          docker compose --profile prod ps
+
+          # Check Nginx
+          docker exec todoapi_web wget --quiet --tries=1 --spider http://localhost:80/health || {
+            echo "Nginx health check failed!"
+            exit 1
+          }
+
+          echo "All services are running!"
+
+      - name: Cleanup old images
+        run: |
+          docker image prune -f
+
+      - name: Show service logs (last 50 lines)
+        if: always()
+        run: |
+          docker compose --profile prod logs --tail=50

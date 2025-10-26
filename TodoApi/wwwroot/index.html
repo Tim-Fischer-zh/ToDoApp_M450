@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Todo App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        /* Auth View Styles */
+        .auth-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            border-radius: 5px;
+        }
+        .auth-tab.active {
+            background: #667eea;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        input[type="text"], input[type="email"], input[type="password"],
+        input[type="date"], input[type="datetime-local"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        /* App View Styles */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+        }
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        /* Todo Form */
+        .todo-form {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Filters */
+        .filters {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        /* Todo List */
+        .todo-list {
+            list-style: none;
+        }
+        .todo-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .todo-item.completed {
+            opacity: 0.6;
+            border-left-color: #28a745;
+        }
+        .todo-item.priority-urgent {
+            border-left-color: #dc3545;
+        }
+        .todo-item.priority-high {
+            border-left-color: #fd7e14;
+        }
+        .todo-item.priority-medium {
+            border-left-color: #ffc107;
+        }
+        .todo-item.priority-low {
+            border-left-color: #6c757d;
+        }
+        .todo-header {
+            display: flex;
+            align-items: start;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .todo-checkbox {
+            margin-top: 3px;
+        }
+        .todo-content {
+            flex: 1;
+        }
+        .todo-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .todo-item.completed .todo-title {
+            text-decoration: line-through;
+        }
+        .todo-description {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .todo-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .todo-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-category {
+            background: #e7f3ff;
+            color: #0056b3;
+        }
+        .badge-tag {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .badge-priority {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .badge-urgent {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .badge-high {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .todo-actions {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .todo-date {
+            color: #666;
+            font-size: 13px;
+        }
+        .todo-date.overdue {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .page-info {
+            color: #666;
+        }
+
+        /* Category/Tag Lists */
+        .item-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .category-card, .tag-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        .category-card {
+            border-left-color: var(--category-color, #667eea);
+        }
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        .item-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .item-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .color-picker {
+            padding: 8px;
+            width: 80px;
+            height: 40px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .close-btn {
+            background: none;
+            font-size: 24px;
+            color: #666;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .checkbox-label input[type="checkbox"] {
+            width: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 60px 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Auth View -->
+    <div id="authView" class="container auth-container">
+        <h1>Advanced Todo App</h1>
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+            <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+        </div>
+
+        <div id="authError" class="error-message hidden"></div>
+
+        <!-- Login Form -->
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="registerForm" class="hidden">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="registerUsername" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="registerEmail" required>
+            </div>
+            <div class="form-group">
+                <label>Password (min 6 characters)</label>
+                <input type="password" id="registerPassword" required minlength="6">
+            </div>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+
+    <!-- App View -->
+    <div id="appView" class="container hidden">
+        <div class="app-header">
+            <h1>My Todos</h1>
+            <div class="user-info">
+                <span class="user-name" id="userName"></span>
+                <button onclick="logout()" class="btn-secondary">Logout</button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('todos')">Todos</button>
+            <button class="tab" onclick="switchTab('categories')">Categories</button>
+            <button class="tab" onclick="switchTab('tags')">Tags</button>
+        </div>
+
+        <!-- Todos Tab -->
+        <div id="todosTab">
+            <!-- Add Todo Form -->
+            <div class="todo-form">
+                <h3 style="margin-bottom: 15px;">Add New Todo</h3>
+                <div class="form-group">
+                    <input type="text" id="todoTitle" placeholder="Todo title" required>
+                </div>
+                <div class="form-group">
+                    <textarea id="todoDescription" placeholder="Description (optional)"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <select id="todoPriority">
+                            <option value="0">Low Priority</option>
+                            <option value="1" selected>Medium Priority</option>
+                            <option value="2">High Priority</option>
+                            <option value="3">Urgent</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="datetime-local" id="todoDueDate">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <select id="todoCategory">
+                            <option value="">No Category</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" onclick="showTagSelector()">Select Tags</button>
+                    </div>
+                </div>
+                <button onclick="addTodo()">Add Todo</button>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <h3 style="margin-bottom: 15px;">Filters & Search</h3>
+                <div class="filter-row">
+                    <div class="form-group">
+                        <input type="text" id="searchTerm" placeholder="Search..." onkeyup="applyFilters()">
+                    </div>
+                    <div class="form-group">
+                        <select id="filterStatus" onchange="applyFilters()">
+                            <option value="">All Status</option>
+                            <option value="false">Active</option>
+                            <option value="true">Completed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="filterCategory" onchange="applyFilters()">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="filterPriority" onchange="applyFilters()">
+                            <option value="">All Priorities</option>
+                            <option value="0">Low</option>
+                            <option value="1">Medium</option>
+                            <option value="2">High</option>
+                            <option value="3">Urgent</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="sortBy" onchange="applyFilters()">
+                            <option value="CreatedAt">Sort by Date</option>
+                            <option value="Priority">Sort by Priority</option>
+                            <option value="DueDate">Sort by Due Date</option>
+                            <option value="Title">Sort by Title</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="sortOrder" onchange="applyFilters()">
+                            <option value="true">Descending</option>
+                            <option value="false">Ascending</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <ul id="todoList" class="todo-list"></ul>
+
+            <div class="pagination">
+                <button onclick="previousPage()" id="prevBtn" class="btn-sm">Previous</button>
+                <span class="page-info" id="pageInfo"></span>
+                <button onclick="nextPage()" id="nextBtn" class="btn-sm">Next</button>
+            </div>
+        </div>
+
+        <!-- Categories Tab -->
+        <div id="categoriesTab" class="hidden">
+            <div class="todo-form">
+                <h3 style="margin-bottom: 15px;">Add Category</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="text" id="categoryName" placeholder="Category name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="color" id="categoryColor" class="color-picker" value="#3B82F6">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <textarea id="categoryDescription" placeholder="Description (optional)"></textarea>
+                </div>
+                <button onclick="addCategory()">Add Category</button>
+            </div>
+            <div id="categoryList" class="item-list"></div>
+        </div>
+
+        <!-- Tags Tab -->
+        <div id="tagsTab" class="hidden">
+            <div class="todo-form">
+                <h3 style="margin-bottom: 15px;">Add Tag</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="text" id="tagName" placeholder="Tag name" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="color" id="tagColor" class="color-picker" value="#6B7280">
+                    </div>
+                </div>
+                <button onclick="addTag()">Add Tag</button>
+            </div>
+            <div id="tagList" class="item-list"></div>
+        </div>
+    </div>
+
+    <!-- Tag Selector Modal -->
+    <div id="tagModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Select Tags</h2>
+                <button class="close-btn" onclick="closeTagModal()">&times;</button>
+            </div>
+            <div class="checkbox-group" id="tagCheckboxes"></div>
+            <button onclick="closeTagModal()" style="margin-top: 20px;">Done</button>
+        </div>
+    </div>
+
+    <!-- Edit Todo Modal -->
+    <div id="editModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Todo</h2>
+                <button class="close-btn" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="editTitle" required>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="editDescription"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select id="editPriority">
+                        <option value="0">Low</option>
+                        <option value="1">Medium</option>
+                        <option value="2">High</option>
+                        <option value="3">Urgent</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="datetime-local" id="editDueDate">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="editCategory">
+                        <option value="">No Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tags</label>
+                    <button type="button" onclick="showEditTagSelector()">Select Tags</button>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button onclick="saveEditTodo()">Save</button>
+                <button onclick="closeEditModal()" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: todoapi_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-todoapi}
+      POSTGRES_USER: ${POSTGRES_USER:-todoapi_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-todoapi_password_123}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-todoapi_user} -d ${POSTGRES_DB:-todoapi}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - appnet
+    profiles:
+      - dev
+      - prod
+
+  # TodoApi Backend
+  api:
+    build:
+      context: .
+      dockerfile: TodoApi/Dockerfile
+    container_name: todoapi_backend
+    environment:
+      - ASPNETCORE_URLS=http://0.0.0.0:8080
+      - DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT:-Development}
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=${POSTGRES_DB:-todoapi};Username=${POSTGRES_USER:-todoapi_user};Password=${POSTGRES_PASSWORD:-todoapi_password_123}
+      - Jwt__Secret=${JWT_SECRET:-YourSuperSecretKeyForDevelopmentOnly123456}
+      - Jwt__Issuer=${JWT_ISSUER:-https://localhost}
+      - Jwt__Audience=${JWT_AUDIENCE:-https://localhost}
+    ports:
+      - "${API_PORT:-8080}:8080"
+    expose:
+      - "8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - appnet
+    profiles:
+      - dev
+      - prod
+
+  # Nginx Reverse Proxy + Static Files (nur Production)
+  web:
+    build:
+      context: .
+      dockerfile: deploy/nginx/Dockerfile
+    container_name: todoapi_web
+    depends_on:
+      - api
+    expose:
+      - "80"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    networks:
+      - appnet
+    profiles:
+      - prod
+
+  # Cloudflare Tunnel (nur Production)
+  cloudflared:
+    image: cloudflare/cloudflared:2025.10.0
+    container_name: todoapi_cloudflared
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      # Mount the tunnel credentials from host (read-only)
+      - /etc/cloudflared/af52dd8f-ff0e-4837-8f54-058c0b759d00.json:/etc/cloudflared/credentials.json:ro
+      # Mount the tunnel config from repo
+      - ./deploy/cloudflared/config.yml:/etc/cloudflared/config.yml:ro
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - appnet
+    profiles:
+      - prod
+
+networks:
+  appnet:
+    name: todoapi_network
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: todoapi_postgres_data

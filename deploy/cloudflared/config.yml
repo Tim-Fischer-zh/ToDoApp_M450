@@ -1,0 +1,19 @@
+# Cloudflare Tunnel Configuration
+# Tunnel ID: af52dd8f-ff0e-4837-8f54-058c0b759d00
+# Domain: nuvaro.xyz
+
+tunnel: af52dd8f-ff0e-4837-8f54-058c0b759d00
+credentials-file: /etc/cloudflared/credentials.json
+protocol: quic
+
+ingress:
+  # Main domain - routes to Nginx (serves frontend + proxies API)
+  - hostname: nuvaro.xyz
+    service: http://web:80
+
+  # WWW subdomain - routes to Nginx
+  - hostname: www.nuvaro.xyz
+    service: http://web:80
+
+  # Catch-all - return 404
+  - service: http_status:404
