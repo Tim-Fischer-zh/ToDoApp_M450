@@ -14,6 +14,9 @@ RUN mkdir -p /var/cache/nginx/client_temp && \
     chown -R nginx:nginx /var/cache/nginx && \
     chown -R nginx:nginx /usr/share/nginx/html
 
+# Test nginx configuration
+RUN nginx -t
+
 # Expose port 80
 EXPOSE 80
 
