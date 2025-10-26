@@ -3,7 +3,10 @@ name: Build, Test & Deploy
 on:
   push:
     branches:
-      - main
+      - '**'  # Run on all branches
+  pull_request:
+    branches:
+      - '**'
   workflow_dispatch:
 
 env:
@@ -11,8 +14,40 @@ env:
   COMPOSE_DOCKER_CLI_BUILD: 1
 
 jobs:
-  build-test-deploy:
+  build:
+    name: Build Docker Images
     runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build API Docker image
+        run: |
+          docker build -f TodoApi/Dockerfile -t todoapi:${{ github.sha }} .
+
+      - name: Build Nginx Docker image
+        run: |
+          docker build -f deploy/nginx/Dockerfile -t todoapi-web:${{ github.sha }} .
+
+  test:
+    name: Run Tests
+    runs-on: self-hosted
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tests in Docker
+        run: |
+          docker build --target test -f TodoApi/Dockerfile -t todoapi-test:${{ github.sha }} .
+
+  deploy:
+    name: Deploy to Production
+    runs-on: self-hosted
+    needs: [build, test]
+    if: github.ref == 'refs/heads/main'
 
     env:
       POSTGRES_DB: todoapi
@@ -27,9 +62,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Docker images
+      - name: Tag images for deployment
         run: |
-          docker compose --profile prod build --no-cache
+          docker tag todoapi:${{ github.sha }} todoapi:latest
+          docker tag todoapi-web:${{ github.sha }} todoapi-web:latest
 
       - name: Stop existing containers
         run: |
@@ -56,7 +92,7 @@ jobs:
 
           if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
             echo "API health check failed!"
-            docker-compose -f docker-compose.prod.yml logs api
+            docker compose --profile prod logs api
             exit 1
           fi
 
@@ -65,8 +101,6 @@ jobs:
       - name: Run database migrations
         run: |
           # Migrations are automatically applied on app startup via EF Core
-          # If you need manual migration, uncomment below:
-          # docker exec todoapi_backend dotnet ef database update
           echo "Database migrations are handled automatically on startup"
 
       - name: Verify deployment
