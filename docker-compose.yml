@@ -4,15 +4,15 @@ services:
     image: postgres:16-alpine
     container_name: todoapi_postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-todoapi}
-      POSTGRES_USER: ${POSTGRES_USER:-todoapi_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-todoapi_password_123}
+      POSTGRES_DB: todoapi
+      POSTGRES_USER: todoapi_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-todoapi_user} -d ${POSTGRES_DB:-todoapi}"]
+      test: ["CMD-SHELL", "pg_isready -U todoapi_user -d todoapi"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -33,10 +33,11 @@ services:
     environment:
       - ASPNETCORE_URLS=http://0.0.0.0:8080
       - DOTNET_ENVIRONMENT=${DOTNET_ENVIRONMENT:-Development}
-      - ConnectionStrings__DefaultConnection=Host=postgres;Database=${POSTGRES_DB:-todoapi};Username=${POSTGRES_USER:-todoapi_user};Password=${POSTGRES_PASSWORD:-todoapi_password_123}
-      - Jwt__Secret=${JWT_SECRET:-YourSuperSecretKeyForDevelopmentOnly123456}
-      - Jwt__Issuer=${JWT_ISSUER:-https://localhost}
-      - Jwt__Audience=${JWT_AUDIENCE:-https://localhost}
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=todoapi;Username=todoapi_user;Password=${POSTGRES_PASSWORD}
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=https://nuvaro.xyz
+      - Jwt__Audience=https://nuvaro.xyz
+      - Jwt__ExpiryHours=24
     ports:
       - "${API_PORT:-8080}:8080"
     expose:

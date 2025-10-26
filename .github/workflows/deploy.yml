@@ -79,13 +79,9 @@ jobs:
         env:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          POSTGRES_DB: todoapi
-          POSTGRES_USER: todoapi_user
-          JWT_ISSUER: https://nuvaro.xyz
-          JWT_AUDIENCE: https://nuvaro.xyz
           DOTNET_ENVIRONMENT: Production
         run: |
-          docker compose --profile prod up -d
+          docker compose --profile prod up -d --build
 
       - name: Wait for services to start
         run: |

@@ -12,13 +12,22 @@ Microsoft.IdentityModel.JsonWebTokens.JsonWebTokenHandler.DefaultInboundClaimTyp
 var builder = WebApplication.CreateBuilder(args);
 
 // Load configuration from appsettings.json and environment variables
+// Environment variables take precedence over appsettings.json
 builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
     .AddEnvironmentVariables();
 
 // Add Database Context
+// Connection string comes from environment variable: ConnectionStrings__DefaultConnection
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new InvalidOperationException(
+        "Database connection string not configured. " +
+        "Set environment variable 'ConnectionStrings__DefaultConnection' or configure in appsettings.json");
+}
+
 builder.Services.AddDbContext<TodoDbContext>(options =>
     options.UseNpgsql(connectionString));
 
@@ -67,9 +76,31 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Configure JWT Authentication
-var jwtSecret = builder.Configuration["Jwt:Secret"] ?? throw new InvalidOperationException("JWT Secret not configured");
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? throw new InvalidOperationException("JWT Issuer not configured");
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? throw new InvalidOperationException("JWT Audience not configured");
+// JWT settings come from environment variables: Jwt__Secret, Jwt__Issuer, Jwt__Audience
+var jwtSecret = builder.Configuration["Jwt:Secret"];
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+var jwtAudience = builder.Configuration["Jwt:Audience"];
+
+if (string.IsNullOrEmpty(jwtSecret))
+{
+    throw new InvalidOperationException(
+        "JWT Secret not configured. " +
+        "Set environment variable 'JWT_SECRET' or 'Jwt__Secret'");
+}
+
+if (string.IsNullOrEmpty(jwtIssuer))
+{
+    throw new InvalidOperationException(
+        "JWT Issuer not configured. " +
+        "Set environment variable 'JWT_ISSUER' or 'Jwt__Issuer'");
+}
+
+if (string.IsNullOrEmpty(jwtAudience))
+{
+    throw new InvalidOperationException(
+        "JWT Audience not configured. " +
+        "Set environment variable 'JWT_AUDIENCE' or 'Jwt__Audience'");
+}
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
