@@ -129,22 +129,22 @@ public async Task CreateTodo_WithValidData_ReturnsCreatedTodo()
 
 ## 8. Kurze Planung
 
-### Phase 1: Setup (Woche 1)
+### Phase 1: Setup 
 - Test-Projekt erstellen (TodoApi.Tests)
 - NuGet-Pakete installieren (xUnit, Moq, FluentAssertions)
 - Test-Datenbank-Konfiguration
 
-### Phase 2: Unit-Tests (Woche 2-3)
+### Phase 2: Unit-Tests 
 - Service-Layer Tests implementieren
 - Controller-Tests mit gemockten Services
 - Mindestens 80% Code-Coverage erreichen
 
-### Phase 3: Integrationstests (Woche 4)
+### Phase 3: Integrationstests
 - API-Endpoint-Tests mit TestServer
 - Authentifizierungs-/Autorisierungstests
 - End-to-End Szenarien
 
-### Phase 4: Continuous Integration (Woche 5)
+### Phase 4: Continuous Integration
 - GitHub Actions Workflow für automatische Tests
 - Test-Reports und Coverage-Badges
 - Pull-Request-Validierung
