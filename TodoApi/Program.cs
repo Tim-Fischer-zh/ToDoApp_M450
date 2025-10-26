@@ -107,20 +107,32 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Run database migrations automatically
+// Run database migrations automatically with retry logic
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    try
+    var maxRetries = 10;
+    var delayMs = 3000;
+
+    for (int i = 0; i < maxRetries; i++)
     {
-        var context = services.GetRequiredService<TodoDbContext>();
-        context.Database.Migrate();
-        Console.WriteLine("Database migrations applied successfully.");
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"An error occurred while migrating the database: {ex.Message}");
-        throw;
+        try
+        {
+            var context = services.GetRequiredService<TodoDbContext>();
+            context.Database.Migrate();
+            Console.WriteLine("Database migrations applied successfully.");
+            break;
+        }
+        catch (Exception ex)
+        {
+            if (i == maxRetries - 1)
+            {
+                Console.WriteLine($"Failed to migrate database after {maxRetries} attempts: {ex.Message}");
+                throw;
+            }
+            Console.WriteLine($"Database not ready, retrying in {delayMs / 1000} seconds... (Attempt {i + 1}/{maxRetries})");
+            Thread.Sleep(delayMs);
+        }
     }
 }
 
