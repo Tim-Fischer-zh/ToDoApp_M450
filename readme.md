@@ -1,11 +1,11 @@
-# 🧪 Teststrategie – Frontend
+# Teststrategie – Frontend
 
 Dieses Dokument beschreibt die Teststrategie für das Frontend unseres Projekts.  
 Ziel ist es, die Qualität der Benutzeroberfläche sicherzustellen und eine einheitliche Vorgehensweise für das Testen zu definieren.
 
 ---
 
-## 🎯 Zielsetzung
+## Zielsetzung
 
 Die Teststrategie soll sicherstellen, dass:
 
@@ -17,7 +17,7 @@ Die Teststrategie soll sicherstellen, dass:
 
 ---
 
-## 🧩 Testarten
+## Testarten
 
 ### 1. **Komponententests**
 Überprüfung einzelner Bausteine des Frontends (z. B. Komponenten, Module, Funktionen).  
@@ -31,17 +31,13 @@ Es wird getestet, ob Datenflüsse und Interaktionen zwischen Modulen wie vorgese
 Überprüfung der Anwendung als Ganzes aus Sicht des Benutzers.  
 Dabei werden typische Nutzungsszenarien getestet, um sicherzustellen, dass alle Teile des Systems zusammen korrekt arbeiten.
 
-### 4. **Regressionstests**
-Sicherstellen, dass bestehende Funktionen nach Änderungen weiterhin korrekt funktionieren.  
-Diese Tests werden regelmäßig durchgeführt, insbesondere nach Code-Änderungen oder Releases.
-
-### 5. **Usability- und Accessibility-Tests**
+### 4. **Usability- und Accessibility-Tests**
 Bewertung der Benutzerfreundlichkeit und Barrierefreiheit.  
 Ziel ist, dass die Anwendung für alle Nutzergruppen intuitiv, klar und zugänglich bleibt.
 
 ---
 
-## ⚙️ Testorganisation
+## Testorganisation
 
 - Tests werden **kontinuierlich während der Entwicklung** erstellt und gepflegt.  
 - Jede neue Funktion soll durch passende Tests abgedeckt werden.  
@@ -50,7 +46,7 @@ Ziel ist, dass die Anwendung für alle Nutzergruppen intuitiv, klar und zugängl
 
 ---
 
-## 🔄 Testablauf
+## Testablauf
 
 1. **Vorbereitung**  
    - Definition der Testziele und Testfälle  
@@ -70,7 +66,7 @@ Ziel ist, dass die Anwendung für alle Nutzergruppen intuitiv, klar und zugängl
 
 ---
 
-## 🧠 Qualitätskriterien
+## Qualitätskriterien
 
 - Jede Kernfunktion ist durch mindestens einen Testfall abgedeckt  
 - Kritische Prozesse werden regelmäßig überprüft  
@@ -79,7 +75,7 @@ Ziel ist, dass die Anwendung für alle Nutzergruppen intuitiv, klar und zugängl
 
 ---
 
-## 📊 Testabdeckung
+## Testabdeckung
 
 Die Testabdeckung beschreibt den Anteil des Frontends, der durch Tests überprüft wird.  
 Ziel ist eine möglichst hohe Abdeckung der wichtigen Funktionen, insbesondere der:
@@ -91,7 +87,7 @@ Ziel ist eine möglichst hohe Abdeckung der wichtigen Funktionen, insbesondere d
 
 ---
 
-## 🧾 Dokumentation
+## Dokumentation
 
 - Alle Testfälle werden in einem zentralen Verzeichnis dokumentiert  
 - Testprotokolle enthalten Informationen zu Testziel, Ergebnis und Status  
@@ -99,7 +95,7 @@ Ziel ist eine möglichst hohe Abdeckung der wichtigen Funktionen, insbesondere d
 
 ---
 
-## 👥 Verantwortlichkeiten
+## Verantwortlichkeiten
 
 - **Entwicklungsteam:** Erstellung und Pflege der Tests während der Implementierung  
 - **Qualitätssicherung:** Überwachung der Testdurchführung, Bewertung der Ergebnisse  
@@ -107,7 +103,7 @@ Ziel ist eine möglichst hohe Abdeckung der wichtigen Funktionen, insbesondere d
 
 ---
 
-## 📅 Testzyklen
+## Testzyklen
 
 Tests werden in verschiedenen Phasen durchgeführt:
 
@@ -120,7 +116,7 @@ Tests werden in verschiedenen Phasen durchgeführt:
 
 ---
 
-## ✅ Zusammenfassung
+## Zusammenfassung
 
 Diese Teststrategie stellt sicher, dass:
 - die Qualität des Frontends kontinuierlich überprüft wird,  
@@ -128,5 +124,3 @@ Diese Teststrategie stellt sicher, dass:
 - und die Anwendung langfristig stabil, benutzerfreundlich und wartbar bleibt.
 
 ---
-
-© 2025 – Frontend Teststrategie
