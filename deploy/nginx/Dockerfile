@@ -6,13 +6,9 @@ RUN rm /etc/nginx/conf.d/default.conf
 # Copy custom nginx configuration
 COPY deploy/nginx/nginx.conf /etc/nginx/nginx.conf
 
-# Copy static files from TodoApi/wwwroot
-COPY TodoApi/wwwroot /usr/share/nginx/html
-
 # Create cache directory
 RUN mkdir -p /var/cache/nginx/client_temp && \
-    chown -R nginx:nginx /var/cache/nginx && \
-    chown -R nginx:nginx /usr/share/nginx/html
+    chown -R nginx:nginx /var/cache/nginx
 
 # Expose port 80
 EXPOSE 80
