@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 package-lock.json
+todo-react/package-lock.json
+/todo-react/package-lock.json
+*-lock.json

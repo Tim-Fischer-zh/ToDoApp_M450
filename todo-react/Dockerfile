@@ -11,8 +11,8 @@ RUN npm ci --silent
 # Copy source code
 COPY . .
 
-# Build the React app with Docker-specific config
-RUN npx vite build --config vite.config.docker.ts
+# Build the React app
+RUN npm run build
 
 # Production Stage - Serve with nginx
 FROM nginx:alpine
