@@ -30,6 +30,10 @@ jobs:
         run: |
           docker build -f TodoApi/Dockerfile -t todoapi:${{ github.sha }} .
 
+      - name: Build Frontend Docker image
+        run: |
+          docker build -f todo-react/Dockerfile -t todoapi-frontend:${{ github.sha }} todo-react/
+
       - name: Build Nginx Docker image
         run: |
           docker build -f deploy/nginx/Dockerfile -t todoapi-web:${{ github.sha }} .
@@ -60,6 +64,7 @@ jobs:
       - name: Tag images for deployment
         run: |
           docker tag todoapi:${{ github.sha }} todoapi:latest
+          docker tag todoapi-frontend:${{ github.sha }} todoapi-frontend:latest
           docker tag todoapi-web:${{ github.sha }} todoapi-web:latest
 
       - name: Stop existing containers
@@ -68,11 +73,12 @@ jobs:
 
       - name: Remove old images to force recreation
         run: |
-          docker rmi todoapi:latest todoapi-web:latest || true
+          docker rmi todoapi:latest todoapi-frontend:latest todoapi-web:latest || true
 
       - name: Re-tag images after removal
         run: |
           docker tag todoapi:${{ github.sha }} todoapi:latest
+          docker tag todoapi-frontend:${{ github.sha }} todoapi-frontend:latest
           docker tag todoapi-web:${{ github.sha }} todoapi-web:latest
 
       - name: Start services

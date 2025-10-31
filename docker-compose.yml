@@ -51,7 +51,24 @@ services:
       - dev
       - prod
 
-  # Nginx Reverse Proxy + Static Files (nur Production)
+  # React Frontend
+  frontend:
+    build:
+      context: ./todo-react
+      dockerfile: Dockerfile
+    container_name: todoapi_frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - appnet
+    profiles:
+      - dev
+      - prod
+
+  # Nginx Reverse Proxy (nur Production)
   web:
     build:
       context: .
@@ -59,6 +76,7 @@ services:
     container_name: todoapi_web
     depends_on:
       - api
+      - frontend
     expose:
       - "80"
     restart: unless-stopped
