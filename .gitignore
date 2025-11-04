@@ -43,3 +43,10 @@ postgres_data/
 
 ## React Build Output (built by frontend container, not stored in API)
 TodoApi/wwwroot/
+todo-react/playwright-report/
+todo-react/test-results/auth-Authentication-Flow-s-3eca1-back-to-login-from-register-chromium/trace.zip
+todo-react/test-results
+
+## React compiled files (should not be in src/)
+todo-react/src/**/*.js
+todo-react/src/**/*.jsx
