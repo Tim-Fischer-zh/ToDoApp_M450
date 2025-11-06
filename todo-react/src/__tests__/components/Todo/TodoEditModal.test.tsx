@@ -245,8 +245,10 @@ describe('TodoEditModal', () => {
 
     await waitFor(() => {
       expect(global.alert).toHaveBeenCalledWith('Failed to update todo');
-      expect(mockOnSuccess).not.toHaveBeenCalled();
     });
+
+    // Check after waitFor to ensure no race condition
+    expect(mockOnSuccess).not.toHaveBeenCalled();
   });
 
   it('should not submit when title is empty', async () => {
