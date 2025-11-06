@@ -170,8 +170,8 @@ describe('TodoService', () => {
 
 ### Phase 2: Unit-Tests ✅
 - Service-Layer Tests (72 Tests)
-- Component-Layer Tests (89 Tests)
-- **Erreicht: 161 Unit-Tests, 100% Pass-Rate**
+- Component-Layer Tests (103 Tests)
+- **Erreicht: 175 Unit/Integration-Tests, 99% Pass-Rate**
 
 ### Phase 3: E2E-Tests ✅
 - Auth Flow (11 Tests)
@@ -180,16 +180,18 @@ describe('TodoService', () => {
 - Error Recovery (10 Tests)
 - **Erreicht: 39 E2E-Szenarien**
 
-### Phase 4: Continuous Integration (Optional)
-- GitHub Actions Workflow
-- Automatische Tests bei PRs
-- Coverage-Badges
+### Phase 4: Continuous Integration ✅
+- GitHub Actions Workflow implementiert (`.github/workflows/deploy.yml`)
+- Automatische Tests bei jedem Push
+- Frontend-Tests in Docker-Container (Test-Stage in Dockerfile)
+- Backend + Frontend Tests laufen in CI/CD Pipeline parallel
+- Deploy nur bei erfolgreichen Tests auf main Branch
 
 ### Metriken:
 - **Ziel-Coverage**: 80%+ für kritische Komponenten ✅
 - **Unit-Test Execution**: < 5 Sekunden ✅ (aktuell ~3s)
 - **E2E-Test Execution**: < 2 Minuten (abhängig von Backend)
-- **Total Tests**: 161 Unit + 39 E2E = **200 Tests**
+- **Total Tests**: 175 Unit/Integration + 39 E2E = **214 Tests**
 
 ## 9. Test-Kommandos
 
@@ -259,6 +261,8 @@ Dieser sollte im Backend-Seed-Script angelegt werden.
 - **Network Mocking** in E2E optional (derzeit gegen echtes Backend)
 - **act() Warnings** in einigen Komponententests (nicht kritisch)
 - **TypeScript Errors** für `.toBeInTheDocument()` (false positives, Tests funktionieren)
+- **TodoEditModal Test** schlägt sporadisch im Docker-Container fehl (Race Condition, lokal funktioniert)
+- **Kompilierte .js Dateien** in tests/ müssen von Git ignoriert werden (bereits in .gitignore)
 
 ---
 
@@ -271,4 +275,4 @@ Diese Teststrategie stellt sicher, dass:
 - XSS und andere Sicherheitslücken verhindert werden
 - Die Anwendung stabil, sicher und wartbar bleibt
 
-**Stand:** 161 Unit-Tests + 39 E2E-Szenarien = **200 Tests Total** ✅
+**Stand:** 175 Unit/Integration-Tests + 39 E2E-Szenarien = **214 Tests Total** ✅
