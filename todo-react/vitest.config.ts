@@ -14,6 +14,8 @@ export default defineConfig({
       '**/dist/**',
       '**/tests/e2e/**', // Exclude Playwright E2E tests
       '**/.{idea,git,cache,output,temp}/**',
+      '**/*.js',        // Exclude compiled JS files
+      '**/*.jsx',       // Exclude compiled JSX files
     ],
     coverage: {
       provider: 'v8',

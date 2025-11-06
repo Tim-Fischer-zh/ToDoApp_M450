@@ -50,3 +50,7 @@ todo-react/test-results
 ## React compiled files (should not be in src/)
 todo-react/src/**/*.js
 todo-react/src/**/*.jsx
+
+## Test compiled files (should not be in tests/)
+todo-react/tests/**/*.js
+todo-react/tests/**/*.jsx
