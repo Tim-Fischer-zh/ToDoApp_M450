@@ -14,6 +14,22 @@ COPY . .
 # Build the React app
 RUN npm run build
 
+# Test Stage
+FROM node:20-alpine AS test
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --silent
+
+# Copy source code (including tests)
+COPY . .
+
+# Run unit and integration tests
+RUN npm run test:run
+
 # Production Stage - Serve with nginx
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html

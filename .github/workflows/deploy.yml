@@ -47,9 +47,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run tests in Docker
+      - name: Run backend tests in Docker
         run: |
           docker build --target test -f TodoApi/Dockerfile -t todoapi-test:${{ github.sha }} .
+
+      - name: Run frontend tests in Docker
+        run: |
+          docker build --target test -f todo-react/Dockerfile -t todoapi-frontend-test:${{ github.sha }} todo-react/
 
   deploy:
     name: Deploy to Production
